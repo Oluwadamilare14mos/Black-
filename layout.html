@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BLACK — Layout</title>
+
+    <!-- Shared CSS (Your main style sheet goes here) -->
+    <link rel="stylesheet" href="styles.css">
+
+    <!-- Shared JS like cart + auth -->
+    <script defer src="main.js"></script>
+</head>
+
+<body>
+
+    <!-- HEADER -->
+    <header class="header">
+        <div class="left">
+            <img src="menu.png" id="openSidebar" class="menu-icon">
+            <h1 class="logo">BLACK</h1>
+        </div>
+
+        <div class="right">
+            <img src="cart.png" id="cartBtn" class="cart-icon">
+        </div>
+    </header>
+
+    <!-- SIDEBAR -->
+    <aside id="sidebar" class="sidebar hidden">
+        <div class="side-header">
+            <span class="close" id="closeSidebar">×</span>
+            <h2>Menu</h2>
+        </div>
+
+        <div class="side-links">
+            <button onclick="window.location.href='index.html'">Home</button>
+            <button onclick="window.location.href='category.html'">Categories</button>
+            <button onclick="window.location.href='wishlist.html'">Wishlist</button>
+            <button onclick="window.location.href='cart.html'">My Cart</button>
+            <button onclick="window.location.href='orders.html'">My Orders</button>
+            <button onclick="window.location.href='profile.html'">My Profile</button>
+            <button onclick="window.location.href='settings.html'">Settings</button>
+            <button onclick="window.location.href='support.html'">Support</button>
+        </div>
+    </aside>
+
+
+    <!-- MAIN CONTENT (every page loads inside here) -->
+    <main id="pageContent">
+        <!-- Your inner page will appear here -->
+        <!-- Example: index.html will inject home content inside this -->
+    </main>
+
+
+    <!-- FOOTER NAV (Mobile bottom nav) -->
+    <nav class="bottom-nav">
+        <button onclick="window.location.href='index.html'">Home</button>
+        <button onclick="window.location.href='category.html'">Categories</button>
+        <button onclick="window.location.href='cart.html'">Cart</button>
+        <button onclick="window.location.href='profile.html'">Account</button>
+    </nav>
+
+
+    <!-- SIDEBAR SCRIPT -->
+    <script>
+        const sidebar = document.getElementById("sidebar");
+        const openSidebar = document.getElementById("openSidebar");
+        const closeSidebar = document.getElementById("closeSidebar");
+
+        openSidebar.onclick = () => sidebar.classList.remove("hidden");
+        closeSidebar.onclick = () => sidebar.classList.add("hidden");
+
+        document.getElementById("cartBtn").onclick = () => {
+            window.location.href = "cart.html";
+        };
+    </script>
+
+</body>
+
+</html>
