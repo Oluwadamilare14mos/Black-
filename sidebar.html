@@ -1,67 +1,77 @@
-<!-- SIDEBAR HTML -->
-<div id="sidebar" class="sidebar sidebar-hidden">
-  <div class="sidebar-header">
-    <h2 class="sidebar-title">Menu</h2>
-    <button id="closeSidebar" class="close-btn">✕</button>
+<!-- sidebar.html -->
+<aside id="sidebar" class="sidebar sidebar-hidden fixed top-0 right-0 h-full w-80 sidebar-black text-white z-50 p-6 overflow-y-auto border-l">
+  <button id="closeSidebar" class="text-white text-2xl absolute top-4 right-4">×</button>
+
+  <div class="mt-10 text-center">
+    <button id="profileToggle" class="mx-auto w-full bg-transparent border-none text-white">
+      <img id="profilePic" src="https://img.icons8.com/ios-filled/100/ffffff/user-male-circle.png" alt="profile" class="mx-auto w-20 h-20 rounded-full border-2 border-brand mb-3 object-cover"/>
+      <h3 id="profileName" class="font-semibold text-lg">Guest</h3>
+      <p id="profileMeta" class="text-sm text-gray-300">Age: — • Gender: —</p>
+    </button>
+
+    <div id="profileOptions" class="profile-options mt-3 px-2">
+      <button id="editProfileBtn" class="w-full text-left px-3 py-2 rounded hover:bg-white/10">Edit Profile</button>
+      <button id="viewOrdersBtn" class="w-full text-left px-3 py-2 rounded hover:bg-white/10">My Orders</button>
+      <button id="settingsBtn" class="w-full text-left px-3 py-2 rounded hover:bg-white/10">Settings</button>
+      <button id="notificationsBtn" class="w-full text-left px-3 py-2 rounded hover:bg-white/10">Notifications</button>
+      <button id="cartBtn" class="w-full text-left px-3 py-2 rounded hover:bg-white/10">Cart</button>
+      <button id="wishlistBtn" class="w-full text-left px-3 py-2 rounded hover:bg-white/10">Wishlist</button>
+      <button id="deliveryBtn" class="w-full text-left px-3 py-2 rounded hover:bg-white/10">Delivery Tracking</button>
+      <button id="supportBtn" class="w-full text-left px-3 py-2 rounded hover:bg-white/10">Support</button>
+
+      <button id="signinBtn" class="w-full mt-4 bg-brand text-black px-3 py-2 rounded-full font-semibold">Login</button>
+      <button id="signoutBtn" class="w-full mt-2 bg-white text-brand border border-brand px-3 py-2 rounded-full font-semibold" style="display:none;">Sign Out</button>
+    </div>
   </div>
 
-  <div class="sidebar-section">
-    <h3 class="section-title">Profile</h3>
-    <div class="profile-box">
-      <img id="profilePic" class="profile-pic" src="https://img.icons8.com/ios-filled/100/ffffff/user-male-circle.png">
-      <p id="profileName" class="profile-name">Guest</p>
+  <div class="mt-6">
+    <button class="accordion-btn text-white" id="contactToggle">
+      <span class="flex items-center">
+        <svg class="icon-small" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 8V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v1" stroke="#ff6600" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Contact
+      </span>
+      <span id="contactArrow">▼</span>
+    </button>
 
-      <div id="profileOptions" class="profile-options hidden">
-        <button id="editProfileBtn" class="sidebar-btn">Edit Profile</button>
-        <button id="viewOrdersBtn" class="sidebar-btn">My Orders</button>
-        <button id="signoutBtn" class="sidebar-btn danger">Sign Out</button>
+    <div id="contactBlock" class="hidden-block text-sm px-2 mt-2">
+      <p><strong>Customer Service:</strong> <span class="text-white">08117854139</span></p>
+      <p><strong>Email:</strong> <a href="mailto:olaniyioluwafunke08@gmail.com" class="text-brand">olaniyioluwafunke08@gmail.com</a></p>
+      <p><strong>WhatsApp:</strong> <a href="https://wa.me/+2348117854139" target="_blank" class="text-brand">08117854139</a></p>
+    </div>
+  </div>
+
+  <div class="mt-6 border-t border-white/10 pt-4">
+    <button class="accordion-btn text-white" id="aboutToggle">
+      <span class="flex items-center">
+        <svg class="icon-small" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2v4M12 22v-4M4.22 4.22l2.83 2.83M17 17l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M17 7l2.83-2.83" stroke="#ff6600" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        About Black 🖤
+      </span>
+      <span id="aboutArrow">▼</span>
+    </button>
+
+    <div id="aboutBlock" class="hidden-block text-sm px-2 mt-2">
+      <p class="text-gray-300 leading-relaxed">Black is your go-to online fashion store — where confidence meets class.</p>
+
+      <div class="mt-3">
+        <button class="accordion-btn text-white" id="helpToggle">
+          <span>Help & Support</span>
+          <span id="helpArrow">▼</span>
+        </button>
+
+        <div id="helpBlock" class="hidden-block mt-2">
+          <p class="text-gray-300 text-sm mb-2">Tell us what's going on — we'll contact you by email.</p>
+          <form id="helpForm" class="space-y-2">
+            <input type="text" id="helpName" placeholder="Your name" class="w-full px-3 py-2 rounded bg-white/5 border border-white/10 text-white" required />
+            <input type="email" id="helpEmail" placeholder="Your email" class="w-full px-3 py-2 rounded bg-white/5 border border-white/10 text-white" required />
+            <textarea id="helpMessage" rows="4" placeholder="Describe your issue..." class="w-full px-3 py-2 rounded bg-white/5 border border-white/10 text-white" required></textarea>
+            <div class="flex gap-2">
+              <button type="button" id="sendHelpBtn" class="flex-1 px-3 py-2 bg-brand text-white rounded">Send</button>
+              <button type="button" id="clearHelpBtn" class="flex-1 px-3 py-2 bg-white text-black rounded">Clear</button>
+            </div>
+            <p id="helpStatus" class="text-sm mt-1"></p>
+          </form>
+        </div>
       </div>
     </div>
-
-    <button id="signinBtn" class="sidebar-btn primary">Sign In</button>
   </div>
-
-  <div class="sidebar-section">
-    <h3 class="section-title">Quick Links</h3>
-    <button id="cartBtn" class="sidebar-btn">🛒 Cart</button>
-    <button id="wishlistBtn" class="sidebar-btn">❤️ Wishlist</button>
-    <button id="deliveryBtn" class="sidebar-btn">📦 Delivery Tracking</button>
-    <button id="notificationsBtn" class="sidebar-btn">🔔 Notifications</button>
-    <button id="supportBtn" class="sidebar-btn">💬 Support</button>
-    <button id="settingsBtn" class="sidebar-btn">⚙ Settings</button>
-  </div>
-
-  <div class="sidebar-section">
-    <h3 id="contactToggle" class="section-title toggle">
-      Contact Us <span id="contactArrow">▼</span>
-    </h3>
-    <div id="contactBlock" class="toggle-block hidden">
-      <p>Email: support@black.com</p>
-      <p>Phone: +234 000 0000</p>
-    </div>
-
-    <h3 id="aboutToggle" class="section-title toggle">
-      About BLACK <span id="aboutArrow">▼</span>
-    </h3>
-    <div id="aboutBlock" class="toggle-block hidden">
-      <p>BLACK is a premium shopping platform for quality wears.</p>
-    </div>
-
-    <h3 id="helpToggle" class="section-title toggle">
-      Help Center <span id="helpArrow">▼</span>
-    </h3>
-    <div id="helpBlock" class="toggle-block hidden">
-      <form id="helpForm">
-        <input id="helpName" class="input" placeholder="Your Name">
-        <input id="helpEmail" class="input" placeholder="Your Email">
-        <textarea id="helpMessage" class="textarea" placeholder="Your Message"></textarea>
-
-        <button id="sendHelpBtn" type="button" class="sidebar-btn primary">Send</button>
-        <button id="clearHelpBtn" type="button" class="sidebar-btn">Clear</button>
-        <p id="helpStatus" class="status"></p>
-      </form>
-    </div>
-  </div>
-</div>
-
-<div id="overlay" class="overlay hidden"></div>
+</aside>
