@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Cart — Black</title>
+  <link rel="icon" href="https://img.icons8.com/ios-filled/50/ff6600/t-shirt.png" />
+
+  <!-- Fonts + Tailwind -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { brand: "#ff6600", dark: "#0b0b0b", accent: "#ff3300" },
+          fontFamily: { poppins: ["Poppins", "sans-serif"] }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body { font-family: Poppins, sans-serif; background: #0b0b0b; color: #fff; }
+    .muted { color: #9ca3af; }
+    .card { background: #0f1720; border: 1px solid rgba(255,255,255,0.04); }
+    .star { cursor: pointer; }
+  </style>
+</head>
+<body class="min-h-screen">
+
+  <!-- Header -->
+  <header class="p-6 bg-dark flex items-center justify-between shadow-md">
+    <div class="flex items-center gap-4">
+      <a href="index.html" class="text-brand font-bold text-lg">BLACK</a>
+      <h1 class="text-white text-2xl font-semibold">Your Cart</h1>
+    </div>
+    <div class="flex items-center gap-3">
+      <a id="profileLink" href="profile.html" class="text-sm px-3 py-2 rounded bg-[#111]">Profile</a>
+      <button id="signOutBtn" class="bg-brand text-black px-3 py-2 rounded font-semibold">Sign Out</button>
+    </div>
+  </header>
+
+  <!-- Main layout -->
+  <main class="max-w-6xl mx-auto p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+
+    <!-- LEFT: Cart items -->
+    <section class="md:col-span-2 space-y-4">
+      <div class="flex items-center justify-between">
+        <h2 class="text-xl font-bold">Items in your cart</h2>
+        <div class="muted text-sm">You must be logged in to manage cart</div>
+      </div>
+
+      <!-- Empty state -->
+      <div id="emptyState" class="hidden text-center py-20 card rounded-lg">
+        <img src="https://img.icons8.com/ios-filled/100/9ca3af/shopping-cart--v1.png" class="mx-auto opacity-40" />
+        <p class="mt-4 muted">Your cart is empty — start shopping to add items.</p>
+        <a href="index.html" class="mt-4 inline-block bg-brand text-black px-4 py-2 rounded">Start Shopping</a>
+      </div>
+
+      <!-- Items container -->
+      <div id="itemsWrap" class="space-y-4"></div>
+
+    </section>
+
+    <!-- RIGHT: Summary & promo -->
+    <aside class="space-y-4 card p-4 rounded-lg">
+      <h3 class="text-lg font-semibold">Cart Summary</h3>
+
+      <div class="mt-3 space-y-2">
+        <div class="flex justify-between">
+          <span class="muted">Subtotal</span>
+          <span id="subtotal">#0</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="muted">Delivery</span>
+          <span id="delivery">#0</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="muted">VAT (7.5%)</span>
+          <span id="vat">#0</span>
+        </div>
+        <div class="border-t border-white/5 mt-2 pt-3 flex justify-between items-center">
+          <strong>Total</strong>
+          <strong id="total">#0</strong>
+        </div>
+      </div>
+
+      <!-- Promo -->
+      <div class="mt-4">
+        <label class="text-sm muted">Promo code</label>
+        <div class="flex gap-2 mt-2">
+          <input id="promoInput" type="text" placeholder="Enter code" class="flex-1 px-3 py-2 rounded bg-[#05060a] border border-white/5" />
+          <button id="applyPromoBtn" class="px-4 py-2 bg-brand text-black rounded">Apply</button>
+        </div>
+        <p id="promoMsg" class="text-sm mt-2 muted"></p>
+      </div>
+
+      <!-- Checkout -->
+      <div class="mt-6">
+        <button id="checkoutBtn" class="w-full bg-brand text-black py-3 rounded-lg font-bold">Proceed to Checkout</button>
+      </div>
+
+      <div class="mt-3 text-sm muted">
+        <p>Secure checkout. You will be redirected to the checkout page.</p>
+      </div>
+    </aside>
+
+  </main>
+
+  <!-- Template: Single cart item (hidden) -->
+  <!-- We'll dynamically create items; keeping a template here for reference. -->
+
+  <!-- Firebase + Logic -->
+  <script type="module">
+    /* ------------------------------
+       Imports (firebase v11 style)
+       ------------------------------ */
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+    import {
+      getAuth, onAuthStateChanged, signOut
+    } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+
+    import {
+      getFirestore, collection, query, where, onSnapshot,
+      doc, updateDoc, deleteDoc, addDoc, getDocs, serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+    /* ------------------------------
+       Firebase config (your keys)
+       ------------------------------ */
+    const firebaseConfig = {
+      apiKey: "AIzaSyDsrL5UHWeFtQAX5XCI1hX7As91PWz59Cs",
+      authDomain: "black-1108.firebaseapp.com",
+      projectId: "black-1108",
+      storageBucket: "black-1108.firebasestorage.app",
+      messagingSenderId: "639439190327",
+      appId: "1:639439190327:web:b08b640aba7e8f7d76c2b2",
+      measurementId: "G-6T8NZV9YB9"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    /* ------------------------------
+       UI refs
+       ------------------------------ */
+    const itemsWrap = document.getElementById('itemsWrap');
+    const emptyState = document.getElementById('emptyState');
+    const subtotalEl = document.getElementById('subtotal');
+    const deliveryEl = document.getElementById('delivery');
+    const vatEl = document.getElementById('vat');
+    const totalEl = document.getElementById('total');
+    const applyPromoBtn = document.getElementById('applyPromoBtn');
+    const promoInput = document.getElementById('promoInput');
+    const promoMsg = document.getElementById('promoMsg');
+    const checkoutBtn = document.getElementById('checkoutBtn');
+    const signOutBtnEl = document.getElementById('signOutBtn');
+    const profileLink = document.getElementById('profileLink');
+
+    /* ------------------------------
+       State
+       ------------------------------ */
+    let currentUser = null;
+    let unsubscribeCart = null;
+    let cartItems = []; // local cached items
+    let promo = { code: null, discountPercent: 0 };
+
+    /* ------------------------------
+       Auth protection
+       ------------------------------ */
+    onAuthStateChanged(auth, user => {
+      if (!user) {
+        // not logged in -> redirect to login
+        if (!window.location.pathname.includes('login.html')) {
+          window.location.href = 'login.html';
+        }
+        return;
+      }
+      currentUser = user;
+      profileLink.href = 'profile.html';
+      // Start real-time listener for cart
+      startCartListener();
+    });
+
+    /* ------------------------------
+       Sign out handler
+       ------------------------------ */
+    signOutBtnEl.addEventListener('click', async () => {
+      try {
+        await signOut(auth);
+        window.location.href = 'login.html';
+      } catch (e) { alert(e.message); }
+    });
+
+    /* ------------------------------
+       Start real-time cart listener
+       Collection: "cart"
+         document fields expected:
+           - userId
+           - productId
+           - name
+           - priceVal (number)
+           - priceText (string, "#12,000")
+           - qty (number)
+           - img (url)
+           - options (object) e.g., { size:"M", color:"Black" }
+       ------------------------------ */
+    function startCartListener() {
+      // unsubscribe previous
+      if (unsubscribeCart) unsubscribeCart();
+
+      const q = query(collection(db, "cart"), where("userId", "==", currentUser.uid));
+      unsubscribeCart = onSnapshot(q, snapshot => {
+        cartItems = [];
+        itemsWrap.innerHTML = '';
+
+        if (snapshot.empty) {
+          emptyState.classList.remove('hidden');
+          updateSummary();
+          return;
+        }
+
+        emptyState.classList.add('hidden');
+
+        snapshot.forEach(docu => {
+          const data = { id: docu.id, ...docu.data() };
+          cartItems.push(data);
+        });
+
+        renderCartItems();
+        updateSummary();
+      });
+    }
+
+    /* ------------------------------
+       Render cart items
+       ------------------------------ */
+    function renderCartItems() {
+      itemsWrap.innerHTML = '';
+      cartItems.forEach(item => {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'card p-4 rounded-lg flex gap-4 items-start';
+
+        // Build HTML
+        wrapper.innerHTML = `
+          <img src="${item.img || 'https://img.icons8.com/ios-filled/100/9ca3af/box.png'}" alt="${escapeHtml(item.name)}" class="w-28 h-28 object-cover rounded">
+          <div class="flex-1">
+            <div class="flex justify-between items-start gap-4">
+              <div>
+                <h3 class="font-semibold">${escapeHtml(item.name)}</h3>
+                <div class="muted text-sm mt-1">
+                  ${ item.options ? buildOptionsText(item.options) : '' }
+                </div>
+                <div class="text-sm muted mt-2">Price: <strong class="text-brand">${item.priceText || formatCurrency(item.priceVal)}</strong></div>
+              </div>
+              <div class="text-right">
+                <button data-id="${item.id}" class="removeItem text-red-400 hover:text-red-600 text-lg">✕</button>
+              </div>
+            </div>
+
+            <div class="mt-3 flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <button data-id="${item.id}" data-action="decrease" class="px-2 py-1 rounded bg-[#0b0d10]">-</button>
+                <div class="px-3 py-1 card rounded">${item.qty}</div>
+                <button data-id="${item.id}" data-action="increase" class="px-2 py-1 rounded bg-[#0b0d10]">+</button>
+              </div>
+
+              <div class="text-sm muted">
+                Item total: <strong class="text-brand">${formatCurrency((item.priceVal || 0) * (item.qty || 1))}</strong>
+              </div>
+            </div>
+
+            <!-- Reviews block for this product -->
+            <div class="mt-4 bg-[#071016] p-3 rounded">
+              <div class="flex items-center justify-between">
+                <strong>Reviews</strong>
+                <button data-product="${item.productId}" class="openReviewsBtn text-sm muted">View all</button>
+              </div>
+
+              <div id="latestReviews-${item.productId}" class="mt-3 space-y-2"></div>
+
+              <!-- Add review form -->
+              <form data-product="${item.productId}" class="addReviewForm mt-3 space-y-2">
+                <div class="flex items-center gap-1">
+                  <span class="muted text-sm">Your rating:</span>
+                  <div class="flex items-center ml-2" data-stars-target>
+                    <svg class="star w-5 h-5 text-yellow-400" data-value="1" viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.974a1 1 0 00.95.69h4.178c.969 0 1.371 1.24.588 1.81l-3.385 2.46a1 1 0 00-.364 1.118l1.286 3.974c.3.921-.755 1.688-1.54 1.118L10 15.347l-3.39 2.635c-.784.57-1.838-.197-1.539-1.118l1.286-3.974a1 1 0 00-.364-1.118L2.608 9.4c-.783-.57-.38-1.81.588-1.81h4.178a1 1 0 00.95-.69L9.05 2.927z"/></svg>
+                    <svg class="star w-5 h-5 text-white/30" data-value="2" viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.974a1 1 0 00.95.69h4.178c.969 0 1.371 1.24.588 1.81l-3.385 2.46a1 1 0 00-.364 1.118l1.286 3.974c.3.921-.755 1.688-1.54 1.118L10 15.347l-3.39 2.635c-.784.57-1.838-.197-1.539-1.118l1.286-3.974a1 1 0 00-.364-1.118L2.608 9.4c-.783-.57-.38-1.81.588-1.81h4.178a1 1 0 00.95-.69L9.05 2.927z"/></svg>
+                    <svg class="star w-5 h-5 text-white/30" data-value="3" viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.974a1 1 0 00.95.69h4.178c.969 0 1.371 1.24.588 1.81l-3.385 2.46a1 1 0 00-.364 1.118l1.286 3.974c.3.921-.755 1.688-1.54 1.118L10 15.347l-3.39 2.635c-.784.57-1.838-.197-1.539-1.118l1.286-3.974a1 1 0 00-.364-1.118L2.608 9.4c-.783-.57-.38-1.81.588-1.81h4.178a1 1 0 00.95-.69L9.05 2.927z"/></svg>
+                    <svg class="star w-5 h-5 text-white/30" data-value="4" viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.974a1 1 0 00.95.69h4.178c.969 0 1.371 1.24.588 1.81l-3.385 2.46a1 1 0 00-.364 1.118l1.286 3.974c.3.921-.755 1.688-1.54 1.118L10 15.347l-3.39 2.635c-.784.57-1.838-.197-1.539-1.118l1.286-3.974a1 1 0 00-.364-1.118L2.608 9.4c-.783-.57-.38-1.81.588-1.81h4.178a1 1 0 00.95-.69L9.05 2.927z"/></svg>
+                    <svg class="star w-5 h-5 text-white/30" data-value="5" viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.974a1 1 0 00.95.69h4.178c.969 0 1.371 1.24.588 1.81l-3.385 2.46a1 1 0 00-.364 1.118l1.286 3.974c.3.921-.755 1.688-1.54 1.118L10 15.347l-3.39 2.635c-.784.57-1.838-.197-1.539-1.118l1.286-3.974a1 1 0 00-.364-1.118L2.608 9.4c-.783-.57-.38-1.81.588-1.81h4.178a1 1 0 00.95-.69L9.05 2.927z"/></svg>
+                  </div>
+                </div>
+
+                <textarea name="comment" rows="2" placeholder="Write a quick review..." class="w-full mt-2 px-3 py-2 rounded bg-[#08121a] text-sm"></textarea>
+
+                <div class="flex items-center gap-2">
+                  <button class="submitReviewBtn px-3 py-2 bg-brand text-black rounded">Add Review</button>
+                  <span class="muted text-sm ml-2">You must be logged in to post.</span>
+                </div>
+              </form>
+
+            </div>
+          </div>
+        `;
+        itemsWrap.appendChild(wrapper);
+
+        // After adding to DOM attach events
+        attachItemEvents(wrapper, item);
+        loadLatestReviewsForProduct(item.productId);
+      });
+    }
+
+    /* ------------------------------
+       Attach events for an item
+       ------------------------------ */
+    function attachItemEvents(wrapper, item) {
+      // Quantity handlers
+      wrapper.querySelectorAll('button[data-action]').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const action = btn.getAttribute('data-action');
+          const id = btn.getAttribute('data-id');
+          const target = cartItems.find(i => i.id === id);
+          if (!target) return;
+          let newQty = target.qty || 1;
+          if (action === 'increase') newQty++;
+          if (action === 'decrease') newQty = Math.max(1, newQty - 1);
+          // update Firestore
+          await updateDoc(doc(db, "cart", id), { qty: newQty });
+        });
+      });
+
+      // Remove item
+      const removeBtn = wrapper.querySelector('.removeItem');
+      removeBtn?.addEventListener('click', async () => {
+        if (!confirm('Remove this item from cart?')) return;
+        await deleteDoc(doc(db, "cart", removeBtn.dataset.id));
+      });
+
+      // Reviews: star rating behavior
+      const starsContainer = wrapper.querySelector('[data-stars-target]');
+      if (starsContainer) {
+        const stars = Array.from(starsContainer.querySelectorAll('.star'));
+        let rating = 5;
+        stars.forEach(s => {
+          s.addEventListener('click', () => {
+            rating = Number(s.dataset.value);
+            // visual update
+            stars.forEach(x => {
+              x.style.opacity = (Number(x.dataset.value) <= rating) ? '1' : '0.25';
+            });
+            // store rating on container for form submission
+            starsContainer.dataset.rating = rating;
+          });
+        });
+      }
+
+      // Add review form submission
+      const form = wrapper.querySelector('.addReviewForm');
+      form?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+      });
+      const submitBtn = wrapper.querySelector('.submitReviewBtn');
+      submitBtn?.addEventListener('click', async (ev) => {
+        ev.preventDefault();
+        if (!currentUser) { window.location.href = 'login.html'; return; }
+
+        const textarea = form.querySelector('textarea[name="comment"]');
+        const comment = textarea.value.trim();
+        const starsVal = Number(form.querySelector('[data-stars-target]')?.dataset.rating || 5);
+        if (!comment) { alert('Please enter your review.'); return; }
+
+        // Save to Firestore under collection: reviews/{productId}/comments
+        try {
+          await addDoc(collection(db, "reviews", item.productId, "comments"), {
+            userId: currentUser.uid,
+            userName: currentUser.displayName || currentUser.email.split('@')[0],
+            rating: starsVal,
+            comment,
+            timestamp: serverTimestamp()
+          });
+          textarea.value = '';
+          // refresh review list for product
+          loadLatestReviewsForProduct(item.productId);
+        } catch (e) {
+          console.error(e);
+          alert('Failed to add review.');
+        }
+      });
+
+      // "View all" reviews button
+      const openReviewsBtn = wrapper.querySelector('.openReviewsBtn');
+      openReviewsBtn?.addEventListener('click', () => {
+        window.location.href = `product.html?id=${encodeURIComponent(item.productId)}`;
+      });
+    }
+
+    /* ------------------------------
+       Load latest 3 reviews for a product
+       collection path: reviews/{productId}/comments
+       ------------------------------ */
+    async function loadLatestReviewsForProduct(productId) {
+      const container = document.getElementById(`latestReviews-${productId}`);
+      if (!container) return;
+      container.innerHTML = '';
+
+      // Query latest 3 comments
+      const q = query(collection(db, "reviews", productId, "comments"), /* no where; just order */
+        // we can't pass orderBy without importing it here; instead we'll fetch and sort client-side
+      );
+
+      try {
+        const snap = await getDocs(collection(db, "reviews", productId, "comments"));
+        if (snap.empty) {
+          container.innerHTML = `<div class="muted text-sm">No reviews yet.</div>`;
+          return;
+        }
+        // sort by timestamp desc (client-side)
+        const docs = [];
+        snap.forEach(d => docs.push({ id: d.id, ...d.data() }));
+        docs.sort((a,b) => (b.timestamp?.seconds||0) - (a.timestamp?.seconds||0));
+        const top = docs.slice(0,3);
+        top.forEach(d => {
+          const time = d.timestamp ? (new Date(d.timestamp.seconds * 1000)).toLocaleString() : '';
+          const ratingStars = '★'.repeat(d.rating || 5) + '☆'.repeat(5 - (d.rating || 5));
+          const el = document.createElement('div');
+          el.className = 'text-sm';
+          el.innerHTML = `
+            <div class="flex justify-between items-start">
+              <div>
+                <strong>${escapeHtml(d.userName || 'User')}</strong>
+                <div class="text-xs muted">${ratingStars}</div>
+                <div class="mt-1 muted text-xs">${escapeHtml(d.comment)}</div>
+              </div>
+              <div class="text-xs muted">${time}</div>
+            </div>
+          `;
+          container.appendChild(el);
+        });
+      } catch (e) {
+        console.error('Failed to load reviews:', e);
+        container.innerHTML = `<div class="muted text-sm">Failed to load reviews.</div>`;
+      }
+    }
+
+    /* ------------------------------
+       Update cart summary
+       ------------------------------ */
+    function updateSummary() {
+      const subtotalVal = cartItems.reduce((s, it) => s + ((it.priceVal || 0) * (it.qty || 1)), 0);
+      const delivery = subtotalVal > 0 ? 1200 : 0; // flat delivery for example
+      const vat = +(subtotalVal * 0.075).toFixed(0);
+      let total = subtotalVal + delivery + vat;
+
+      // apply promo
+      if (promo.discountPercent > 0) {
+        total = Math.round(total * (1 - promo.discountPercent / 100));
+        promoMsg.textContent = `Promo (${promo.code}) applied: ${promo.discountPercent}% off`;
+      } else {
+        promoMsg.textContent = '';
+      }
+
+      subtotalEl.textContent = formatCurrency(subtotalVal);
+      deliveryEl.textContent = formatCurrency(delivery);
+      vatEl.textContent = formatCurrency(vat);
+      totalEl.textContent = formatCurrency(total);
+    }
+
+    /* ------------------------------
+       Promo handler (basic)
+       ------------------------------ */
+    applyPromoBtn.addEventListener('click', async () => {
+      const code = promoInput.value.trim();
+      if (!code) { promoMsg.textContent = 'Enter a code.'; return; }
+
+      // Example: Check promo in Firestore collection 'promos'
+      try {
+        const snap = await getDocs(query(collection(db, "promos"), where("code", "==", code)));
+        if (snap.empty) {
+          promo = { code: null, discountPercent: 0 };
+          promoMsg.textContent = 'Invalid promo code.';
+        } else {
+          // take first
+          const p = snap.docs[0].data();
+          promo = { code: p.code, discountPercent: p.percent || 0 };
+          promoMsg.textContent = `Applied: ${promo.discountPercent}% off`;
+        }
+      } catch (e) {
+        console.error(e);
+        promoMsg.textContent = 'Promo check failed.';
+      }
+      updateSummary();
+    });
+
+    /* ------------------------------
+       Checkout (simple redirect)
+       ------------------------------ */
+    checkoutBtn.addEventListener('click', () => {
+      if (!currentUser) { window.location.href = 'login.html'; return; }
+      // send user to checkout page (you can add validation)
+      window.location.href = 'checkout.html';
+    });
+
+    /* ------------------------------
+       Utilities
+       ------------------------------ */
+    function formatCurrency(val) {
+      try {
+        return '#' + Number(val || 0).toLocaleString();
+      } catch { return '#' + (val || 0); }
+    }
+
+    function formatCurrencyRaw(val) {
+      return Number(val || 0);
+    }
+
+    function buildOptionsText(options) {
+      if (!options || typeof options !== 'object') return '';
+      return Object.entries(options).map(([k,v]) => `<span class="inline-block mr-2">${escapeHtml(k)}: <strong>${escapeHtml(v)}</strong></span>`).join('');
+    }
+
+    // Basic HTML escape for safety when injecting text
+    function escapeHtml(str) {
+      if (!str && str !== 0) return '';
+      return String(str)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+    }
+
+    /* ------------------------------
+       Init: nothing else required here; everything runs via onAuthStateChanged
+       ------------------------------ */
+
+  </script>
+
+  <script>
+  // Read cart count from localStorage
+  const cartCountEl = document.getElementById('cartCount');
+  if (cartCountEl) {
+    const stored = JSON.parse(localStorage.getItem('cartItems') || '[]');
+    cartCountEl.textContent = stored.length;
+  }
+</script>
+</body>
+</html>
