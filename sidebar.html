@@ -1,0 +1,67 @@
+<!-- SIDEBAR HTML -->
+<div id="sidebar" class="sidebar sidebar-hidden">
+  <div class="sidebar-header">
+    <h2 class="sidebar-title">Menu</h2>
+    <button id="closeSidebar" class="close-btn">✕</button>
+  </div>
+
+  <div class="sidebar-section">
+    <h3 class="section-title">Profile</h3>
+    <div class="profile-box">
+      <img id="profilePic" class="profile-pic" src="https://img.icons8.com/ios-filled/100/ffffff/user-male-circle.png">
+      <p id="profileName" class="profile-name">Guest</p>
+
+      <div id="profileOptions" class="profile-options hidden">
+        <button id="editProfileBtn" class="sidebar-btn">Edit Profile</button>
+        <button id="viewOrdersBtn" class="sidebar-btn">My Orders</button>
+        <button id="signoutBtn" class="sidebar-btn danger">Sign Out</button>
+      </div>
+    </div>
+
+    <button id="signinBtn" class="sidebar-btn primary">Sign In</button>
+  </div>
+
+  <div class="sidebar-section">
+    <h3 class="section-title">Quick Links</h3>
+    <button id="cartBtn" class="sidebar-btn">🛒 Cart</button>
+    <button id="wishlistBtn" class="sidebar-btn">❤️ Wishlist</button>
+    <button id="deliveryBtn" class="sidebar-btn">📦 Delivery Tracking</button>
+    <button id="notificationsBtn" class="sidebar-btn">🔔 Notifications</button>
+    <button id="supportBtn" class="sidebar-btn">💬 Support</button>
+    <button id="settingsBtn" class="sidebar-btn">⚙ Settings</button>
+  </div>
+
+  <div class="sidebar-section">
+    <h3 id="contactToggle" class="section-title toggle">
+      Contact Us <span id="contactArrow">▼</span>
+    </h3>
+    <div id="contactBlock" class="toggle-block hidden">
+      <p>Email: support@black.com</p>
+      <p>Phone: +234 000 0000</p>
+    </div>
+
+    <h3 id="aboutToggle" class="section-title toggle">
+      About BLACK <span id="aboutArrow">▼</span>
+    </h3>
+    <div id="aboutBlock" class="toggle-block hidden">
+      <p>BLACK is a premium shopping platform for quality wears.</p>
+    </div>
+
+    <h3 id="helpToggle" class="section-title toggle">
+      Help Center <span id="helpArrow">▼</span>
+    </h3>
+    <div id="helpBlock" class="toggle-block hidden">
+      <form id="helpForm">
+        <input id="helpName" class="input" placeholder="Your Name">
+        <input id="helpEmail" class="input" placeholder="Your Email">
+        <textarea id="helpMessage" class="textarea" placeholder="Your Message"></textarea>
+
+        <button id="sendHelpBtn" type="button" class="sidebar-btn primary">Send</button>
+        <button id="clearHelpBtn" type="button" class="sidebar-btn">Clear</button>
+        <p id="helpStatus" class="status"></p>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div id="overlay" class="overlay hidden"></div>
