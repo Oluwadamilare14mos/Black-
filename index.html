@@ -22,44 +22,36 @@
   <style>
     body { font-family: Poppins, sans-serif; background:#fff; color:#111827; }
     header.site-header { position: fixed; top:0; left:0; width:100%; z-index:50; background:#ffffff; }
-    body { padding-top: 128px; } /* matches header total height */
+    body { padding-top: 128px; }
     .sidebar { transition: transform .28s ease; }
     .sidebar-hidden { transform: translateX(100%); }
     .sidebar-visible { transform: translateX(0); }
-    .prod-img { width:100%; height:220px; object-fit:cover; }
-    @media (max-width:640px) { .prod-img { height:160px; } }
-    .card { background: #fff; border-radius: 0.75rem; box-shadow: 0 6px 18px rgba(0,0,0,0.06); }
-    .sidebar-black { background:#000 !important; color:#fff !important; }
-    .accordion-btn { width:100%; text-align:left; display:flex; align-items:center; justify-content:space-between; padding:0.5rem 0; }
-    .hidden-block { display:none; }
-    .profile-options { display:none; text-align:left; margin-top:0.5rem; }
-    .icon-small { width:18px; height:18px; display:inline-block; vertical-align:middle; margin-right:8px; }
-    #overlay { z-index:45; }
   </style>
 </head>
 <body>
-  <!-- layout will be injected here -->
+
   <div id="app"></div>
 
-  <!-- EmailJS for help form -->
   <script src="https://cdn.emailjs.com/sdk/3.2.0/email.min.js"></script>
 
-  <!-- Load the layout (HTML chunk) -->
+  <!-- Load layout FIRST -->
   <script>
     (async function(){
       try {
         const res = await fetch('layout.html');
         const html = await res.text();
         document.getElementById('app').innerHTML = html;
-      } catch (e) {
-        document.getElementById('app').innerHTML = '<p style="padding:20px">Failed to load layout. Check that layout.html is present.</p>';
-        console.error(e);
+
+        // Load scripts AFTER layout is loaded
+        await import('./main.js');
+        await import('./product.js');
+
+      } catch(err) {
+        console.error('Layout Load Error:', err);
+        document.getElementById('app').innerHTML = '<p>Error loading layout.html</p>';
       }
     })();
   </script>
 
-  <!-- App scripts (modules) -->
-  <script type="module" src="./main.js"></script>
-  <script type="module" src="./product.js"></script>
 </body>
 </html>
