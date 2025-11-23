@@ -1,47 +1,65 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BLACK — Home</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Black — Style That Speaks</title>
+  <link rel="icon" href="https://img.icons8.com/ios-filled/50/ff6600/t-shirt.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- Load layout CSS + your styles -->
-    <link rel="stylesheet" href="styles.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { brand: "#ff6600", accent: "#ff3300", dark: "#111827" },
+          fontFamily: { poppins: ["Poppins", "sans-serif"] },
+        },
+      },
+    };
+  </script>
 
-    <!-- Load shared JS -->
-    <script defer src="main.js"></script>
-    <script defer src="product.js"></script>
+  <style>
+    body { font-family: Poppins, sans-serif; background:#fff; color:#111827; }
+    header.site-header { position: fixed; top:0; left:0; width:100%; z-index:50; background:#ffffff; }
+    body { padding-top: 128px; } /* matches header total height */
+    .sidebar { transition: transform .28s ease; }
+    .sidebar-hidden { transform: translateX(100%); }
+    .sidebar-visible { transform: translateX(0); }
+    .prod-img { width:100%; height:220px; object-fit:cover; }
+    @media (max-width:640px) { .prod-img { height:160px; } }
+    .card { background: #fff; border-radius: 0.75rem; box-shadow: 0 6px 18px rgba(0,0,0,0.06); }
+    .sidebar-black { background:#000 !important; color:#fff !important; }
+    .accordion-btn { width:100%; text-align:left; display:flex; align-items:center; justify-content:space-between; padding:0.5rem 0; }
+    .hidden-block { display:none; }
+    .profile-options { display:none; text-align:left; margin-top:0.5rem; }
+    .icon-small { width:18px; height:18px; display:inline-block; vertical-align:middle; margin-right:8px; }
+    #overlay { z-index:45; }
+  </style>
 </head>
-
 <body>
+  <!-- layout will be injected here -->
+  <div id="app"></div>
 
-    <!-- IMPORT LAYOUT -->
-    <div id="layout"></div>
+  <!-- EmailJS for help form -->
+  <script src="https://cdn.emailjs.com/sdk/3.2.0/email.min.js"></script>
 
-    <!-- HOME PAGE CONTENT -->
-    <main id="pageContent" class="home-page">
+  <!-- Load the layout (HTML chunk) -->
+  <script>
+    (async function(){
+      try {
+        const res = await fetch('layout.html');
+        const html = await res.text();
+        document.getElementById('app').innerHTML = html;
+      } catch (e) {
+        document.getElementById('app').innerHTML = '<p style="padding:20px">Failed to load layout. Check that layout.html is present.</p>';
+        console.error(e);
+      }
+    })();
+  </script>
 
-        <section class="hero">
-            <h2>Welcome to BLACK</h2>
-            <p>Shop Premium Clothing & Wears</p>
-        </section>
-
-        <h3 class="section-title">🔥 Latest Products</h3>
-        <div id="productList" class="product-grid"></div>
-
-    </main>
-
-    <!-- Inject layout.html -->
-    <script>
-        // Load layout.html into the page
-        fetch("layout.html")
-            .then(res => res.text())
-            .then(html => {
-                document.getElementById("layout").innerHTML = html;
-            });
-    </script>
-
+  <!-- App scripts (modules) -->
+  <script type="module" src="./main.js"></script>
+  <script type="module" src="./product.js"></script>
 </body>
-
 </html>
