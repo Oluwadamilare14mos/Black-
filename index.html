@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BLACK — Home</title>
+
+    <!-- Load layout CSS + your styles -->
+    <link rel="stylesheet" href="styles.css">
+
+    <!-- Load shared JS -->
+    <script defer src="main.js"></script>
+    <script defer src="product.js"></script>
+</head>
+
+<body>
+
+    <!-- IMPORT LAYOUT -->
+    <div id="layout"></div>
+
+    <!-- HOME PAGE CONTENT -->
+    <main id="pageContent" class="home-page">
+
+        <section class="hero">
+            <h2>Welcome to BLACK</h2>
+            <p>Shop Premium Clothing & Wears</p>
+        </section>
+
+        <h3 class="section-title">🔥 Latest Products</h3>
+        <div id="productList" class="product-grid"></div>
+
+    </main>
+
+    <!-- Inject layout.html -->
+    <script>
+        // Load layout.html into the page
+        fetch("layout.html")
+            .then(res => res.text())
+            .then(html => {
+                document.getElementById("layout").innerHTML = html;
+            });
+    </script>
+
+</body>
+
+</html>
